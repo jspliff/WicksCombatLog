@@ -14,7 +14,7 @@ local C_TEXT_DIM    = { 0.500, 0.460, 0.360, 1 }
 local C_ROW_ALT     = { 0.090, 0.067, 0.141, 0.45 }
 
 local BRACKET    = 10
-local HEADER_H   = 32
+local HEADER_H   = 22
 local FILTER_H   = 28
 local STATUS_H   = 16
 local ROW_H      = 16
@@ -225,61 +225,48 @@ local function ensureFrame()
     if frame.SetMinResize then frame:SetMinResize(MIN_W, MIN_H) end
     if frame.SetResizeBounds then frame:SetResizeBounds(MIN_W, MIN_H) end
     frame:EnableMouse(true)
+    frame:RegisterForDrag("LeftButton")
+    frame:SetScript("OnDragStart", frame.StartMoving)
+    frame:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+        local p, _, rp, x, y = self:GetPoint()
+        WCLSettings = WCLSettings or {}
+        WCLSettings.pos = { p, rp, x, y }
+        WCLSettings.size = { self:GetWidth(), self:GetHeight() }
+    end)
 
     local bg = newTex(frame, "BACKGROUND", C_BG); bg:SetAllPoints()
     addBorder(frame)
 
-    -- Header strip ---- canonical Wick suite spec ---------------------------
-    local header = CreateFrame("Frame", nil, frame)
-    header:SetPoint("TOPLEFT", frame, "TOPLEFT", 1, -1)
-    header:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
-    header:SetHeight(HEADER_H)
+    -- Header strip — slim Wick suite spec -----------------------------------
+    -- Plain texture on the main frame (not a subpanel). Title + close button
+    -- anchor directly to the main frame too.
+    local headerBG = newTex(frame, "ARTWORK", C_HEADER_BG)
+    headerBG:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1, -1)
+    headerBG:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -1)
+    headerBG:SetHeight(HEADER_H)
 
-    local headerBG = newTex(header, "BACKGROUND", C_HEADER_BG); headerBG:SetAllPoints()
+    local hSep = newTex(frame, "ARTWORK", C_BORDER)
+    hSep:SetPoint("TOPLEFT",  frame, "TOPLEFT",  1, -HEADER_H - 1)
+    hSep:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -1, -HEADER_H - 1)
+    hSep:SetHeight(1)
 
-    local headerLine = newTex(header, "BORDER")
-    headerLine:SetColorTexture(C_GREEN[1], C_GREEN[2], C_GREEN[3], 0.35)
-    headerLine:SetPoint("BOTTOMLEFT",  header, "BOTTOMLEFT",  40, 0)
-    headerLine:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", -40, 0)
-    headerLine:SetHeight(1)
-
-    local headerBot = newTex(header, "BORDER", C_BORDER)
-    headerBot:SetPoint("BOTTOMLEFT",  header, "BOTTOMLEFT",  0, 0)
-    headerBot:SetPoint("BOTTOMRIGHT", header, "BOTTOMRIGHT", 0, 0)
-    headerBot:SetHeight(1)
-
-    local title = header:CreateFontString(nil, "OVERLAY")
-    title:SetFont("Fonts\\FRIZQT__.TTF", 14, "OUTLINE")
+    local title = frame:CreateFontString(nil, "OVERLAY")
+    title:SetFont("Fonts\\FRIZQT__.TTF", 12, "")
     title:SetText("|cff4FC778Wick's|r |cffD4C8A1Combat Log|r")
-    title:SetPoint("LEFT", header, "LEFT", 12, 0)
+    title:SetPoint("LEFT", frame, "TOPLEFT", 10, -HEADER_H / 2)
 
-    local closeBtn = CreateFrame("Button", nil, header)
-    closeBtn:SetSize(16, 16)
-    closeBtn:SetPoint("RIGHT", header, "RIGHT", -8, 0)
-    local closeBG = newTex(closeBtn, "BACKGROUND", C_HEADER_BG); closeBG:SetAllPoints()
-    addBorder(closeBtn)
-    local closeX = closeBtn:CreateFontString(nil, "OVERLAY")
-    closeX:SetFont("Fonts\\FRIZQT__.TTF", 9, "")
-    closeX:SetText("✕")
-    closeX:SetTextColor(unpack(C_TEXT_DIM))
-    closeX:SetAllPoints()
-    closeX:SetJustifyH("CENTER"); closeX:SetJustifyV("MIDDLE")
-    closeBtn:SetScript("OnEnter", function() closeX:SetTextColor(1, 0.3, 0.3, 1) end)
-    closeBtn:SetScript("OnLeave", function() closeX:SetTextColor(unpack(C_TEXT_DIM)) end)
+    local closeBtn = CreateFrame("Button", nil, frame)
+    closeBtn:SetSize(HEADER_H - 4, HEADER_H - 4)
+    closeBtn:SetPoint("RIGHT", frame, "TOPRIGHT", -4, -HEADER_H / 2)
+    local closeText = closeBtn:CreateFontString(nil, "OVERLAY")
+    closeText:SetFont("Fonts\\FRIZQT__.TTF", 14, "")
+    closeText:SetTextColor(unpack(C_TEXT_NORMAL))
+    closeText:SetPoint("CENTER")
+    closeText:SetText("×")
+    closeBtn:SetScript("OnEnter", function() closeText:SetTextColor(unpack(C_GREEN)) end)
+    closeBtn:SetScript("OnLeave", function() closeText:SetTextColor(unpack(C_TEXT_NORMAL)) end)
     closeBtn:SetScript("OnClick", function() frame:Hide() end)
-
-    -- Drag is header-only (per canonical spec) — frame body stays clickable
-    -- for row interactions and the resize grip.
-    header:EnableMouse(true)
-    header:RegisterForDrag("LeftButton")
-    header:SetScript("OnDragStart", function() frame:StartMoving() end)
-    header:SetScript("OnDragStop",  function()
-        frame:StopMovingOrSizing()
-        local p, _, rp, x, y = frame:GetPoint()
-        WCLSettings = WCLSettings or {}
-        WCLSettings.pos = { p, rp, x, y }
-        WCLSettings.size = { frame:GetWidth(), frame:GetHeight() }
-    end)
 
     -- Filter bar ------------------------------------------------------------
     local filterBar = CreateFrame("Frame", nil, frame)
@@ -423,6 +410,10 @@ local function ensureFrame()
     if WCLSettings and WCLSettings.size then
         frame:SetSize(unpack(WCLSettings.size))
     end
+
+    -- Frames default to shown after CreateFrame; hide here so the first /wcl
+    -- toggle reads as "show" rather than "hide-the-just-created-frame".
+    frame:Hide()
 
     return frame
 end
