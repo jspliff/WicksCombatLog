@@ -2,9 +2,9 @@
 
 # Wick's Combat Log
 
-> Raw `COMBAT_LOG_EVENT_UNFILTERED` viewer. Every subevent, every arg — the fields Blizzard's default chat log strips out.
+> Raw `COMBAT_LOG_EVENT_UNFILTERED` viewer. Every subevent, every arg, all the fields Blizzard's default chat log strips out.
 
-Part of the **[Wick suite](https://github.com/Wicksmods/WickSuite)** — precision addons built around a single fel-green-on-deep-purple aesthetic.
+Part of the **[Wick suite](https://github.com/Wicksmods/WickSuite)**: precision addons built around a single fel-green-on-deep-purple aesthetic.
 
 <!-- wick:suite-table:start -->
 | Addon | GitHub | CurseForge |
@@ -16,6 +16,8 @@ Part of the **[Wick suite](https://github.com/Wicksmods/WickSuite)** — precisi
 | **Wick's Combat Log** | [repo](https://github.com/Wicksmods/WicksCombatLog) | [CurseForge](https://www.curseforge.com/wow/addons/wicks-combat-log) |
 | **Wick's Stats** | [repo](https://github.com/Wicksmods/WicksStats) | [CurseForge](https://www.curseforge.com/wow/addons/wicks-stats) |
 | **Wick's Quest Key** | [repo](https://github.com/Wicksmods/WicksQuestKey) | [CurseForge](https://www.curseforge.com/wow/addons/wicks-quest-key) |
+| **Wick's Layers** | [repo](https://github.com/Wicksmods/WicksLayers) | [CurseForge](https://www.curseforge.com/wow/addons/wicks-layers) |
+| **Wick's Totems and Things** | [repo](https://github.com/Wicksmods/WicksTotemsAndThings) | [CurseForge](https://www.curseforge.com/wow/addons/wicks-totems-and-things) |
 <!-- wick:suite-table:end -->
 
 ## Features
